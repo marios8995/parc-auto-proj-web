@@ -1,0 +1,58 @@
+# ========================
+# Sistem de Operare
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Medii de Dezvoltare (IDE)
+# ========================
+.vscode/
+.idea/
+*.swp
+
+# ========================
+# Securitate / Variabile de Mediu
+# ========================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+*.pem
+
+# ========================
+# Backend (Python / FastAPI)
+# ========================
+# Medii virtuale
+venv/
+env/
+.venv/
+
+# Cache și fișiere compilate
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Baze de date locale
+*.sqlite3
+*.db
+
+# ========================
+# Frontend (Node.js)
+# ========================
+# Dependențe
+frontend/node_modules/
+node_modules/
+
+# Build și producție
+frontend/build/
+frontend/dist/
+build/
+dist/
+
+# Log-uri NPM / Yarn
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
