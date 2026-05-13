@@ -25,6 +25,7 @@ class Car(Base):
     __tablename__ = 'cars'
 
     id = Column(Integer, primary_key=True, index=True)
+    owner_id = Column(Integer, ForeignKey('owners.id'), nullable=True)
 
     nr_inmatriculare = Column(String(20), unique=True, index=True, nullable=False)
     serie_sasiu = Column(String(50), unique=True, nullable=False)
@@ -54,6 +55,7 @@ class Car(Base):
     asigurari = relationship("Asigurare", back_populates="car")
     viniete = relationship("Vinieta", back_populates="car")
     anvelope = relationship("Anvelopa", back_populates="car")
+    owner = relationship("Owner", back_populates="cars")
 
 class Driver(Base):
     __tablename__ = 'drivers'
@@ -64,9 +66,6 @@ class Driver(Base):
     cnp = Column(String(13), unique=True)
     numar_permis = Column(String(50), unique=True)
     data_expirare_permis = Column(DateTime)
-
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     cars_history = relationship("DriverCarAssociation", back_populates="driver")
 
@@ -81,6 +80,19 @@ class DriverCarAssociation(Base):
 
     driver = relationship("Driver", back_populates="cars_history")
     car = relationship("Car", back_populates="drivers_history")
+
+class Owner(Base):
+    __tablename__ = 'owners'
+
+    id = Column(Integer, primary_key=True, index=True)
+    nume = Column(String(100), nullable=False, index=True) # Ex: "Porsche Leasing IFN" sau "Ion Popescu"
+    tip = Column(String(50)) # Ex: "Companie Leasing", "Persoana Fizica", "Proprie"
+    cui_cnp = Column(String(20), unique=True) # CUI pt firme, CNP pt persoane
+    adresa = Column(String(200))
+    telefon_contact = Column(String(20))
+    email_contact = Column(String(100))
+
+    cars = relationship("Car", back_populates="owner")
 
 class ManagementService(Base):
     __tablename__ = 'management_services'
