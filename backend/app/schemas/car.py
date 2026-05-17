@@ -23,6 +23,8 @@ class CarBase(BaseModel):
     pret: Optional[float] = Field(None, ge=0.0)
     disponibil: bool = True
 
+    img_url: Optional[str] = None
+
     @field_validator('an_fabricatie')
     @classmethod
     def validate_an_fabricatie(cls, value: int) -> int:

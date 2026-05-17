@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-
 from app.database import get_db
 from app.models.models import Owner, Car
 from app.schemas.owner import OwnerCreate, OwnerResponse, OwnerUpdate
 from app.schemas.car import CarResponse
 from app.core.exceptions import raise_api_error, ErrorCodes
+from app.api.dependencies import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)]
+)
 
 def apply_owner_filters(query, nume: Optional[str] = None, cui_cnp: Optional[str] = None, tip: Optional[str] = None):
     if nume:

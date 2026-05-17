@@ -2,13 +2,15 @@ from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta
-
 from app.database import get_db
 from app.models.models import Vinieta, Car
 from app.schemas.vinieta import VinietaCreate, VinietaUpdate, VinietaResponse
 from app.core.exceptions import raise_api_error, ErrorCodes
+from app.api.dependencies import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)]
+)
 
 def get_viniete_in_prag_de_expirare(db: Session, zile_avertizare: int = 7):
     prag_alerta = datetime.now() + timedelta(days=zile_avertizare)

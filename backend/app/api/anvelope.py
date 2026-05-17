@@ -6,8 +6,11 @@ from app.database import get_db
 from app.models.models import Anvelopa, Car, SezonAnvelopa
 from app.schemas.anvelopa import AnvelopaCreate, AnvelopaUpdate, AnvelopaResponse
 from app.core.exceptions import raise_api_error, ErrorCodes
+from app.api.dependencies import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)]
+)
 
 
 def get_anvelope_de_schimbat(db: Session):

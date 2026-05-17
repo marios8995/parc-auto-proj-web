@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
-
 from app.database import get_db
 from app.models.models import ManagementService, Car
 from app.schemas.management_service import (
@@ -11,8 +10,11 @@ from app.schemas.management_service import (
     ManagementServiceResponse
 )
 from app.core.exceptions import raise_api_error, ErrorCodes
+from app.api.dependencies import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)]
+)
 
 @router.post("/", response_model=ManagementServiceResponse, status_code=status.HTTP_201_CREATED)
 def create_service_record(data: ManagementServiceCreate, db: Session = Depends(get_db)):

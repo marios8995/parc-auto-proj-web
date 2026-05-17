@@ -3,6 +3,7 @@ uvicorn[standard]
 sqlalchemy
 pydantic[email]
 pymysql
-passlib[bcrypt]
+passlib[bcrypt]==1.7.4
+PyJWT==2.12.1
 python-jose[cryptography]
 python-multipart

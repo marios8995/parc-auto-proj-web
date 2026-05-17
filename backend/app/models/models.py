@@ -47,6 +47,8 @@ class Car(Base):
     pret = Column(Float)
     disponibil = Column(Boolean, default=True)
 
+    img_url = Column(String(255), nullable=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

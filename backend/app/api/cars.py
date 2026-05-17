@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends, status, Query
+import os
+import shutil
+import uuid
+from fastapi import APIRouter, Depends, status, Query, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta
@@ -7,8 +10,11 @@ from app.database import get_db
 from app.models.models import Car
 from app.schemas.car import CarCreate, CarResponse, CarUpdate
 from app.core.exceptions import raise_api_error, ErrorCodes
+from app.api.dependencies import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)]
+)
 
 def apply_car_filters(
     query,
@@ -183,3 +189,25 @@ def get_car_itp_status(car_id: int, db: Session = Depends(get_db)):
         "zile_ramase": diferenta_zile if este_valid else diferenta_zile,
         "mesaj": "ITP Valid" if este_valid else f"ITP Expirat de {abs(diferenta_zile)} zile!"
     }
+
+@router.post("/{car_id}/image", response_model=CarResponse)
+def upload_car_image(car_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    masina = db.query(Car).filter(Car.id == car_id).first()
+    if not masina:
+        raise_api_error(ErrorCodes.CAR_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+
+    upload_dir = "uploads/cars"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    file_extension = file.filename.split(".")[-1]
+    unique_filename = f"{car_id}_{uuid.uuid4().hex[:8]}.{file_extension}"
+    file_path = os.path.join(upload_dir, unique_filename)
+
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    masina.imagine_url = f"/{file_path}"
+    db.commit()
+    db.refresh(masina)
+
+    return masina

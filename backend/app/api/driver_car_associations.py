@@ -10,8 +10,11 @@ from app.schemas.driver_car_association import (
     DriverCarAssociationUpdate
 )
 from app.core.exceptions import raise_api_error, ErrorCodes
+from app.api.dependencies import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)]
+)
 
 
 @router.post("/", response_model=DriverCarAssociationResponse, status_code=status.HTTP_201_CREATED)

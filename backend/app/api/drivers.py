@@ -7,8 +7,11 @@ from app.database import get_db
 from app.models.models import Driver
 from app.schemas.driver import DriverCreate, DriverResponse, DriverUpdate
 from app.core.exceptions import raise_api_error, ErrorCodes
+from app.api.dependencies import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)]
+)
 
 
 def get_permise_in_prag_de_expirare(db: Session, zile_avertizare: int = 30):
