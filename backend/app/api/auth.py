@@ -8,14 +8,12 @@ from app.core.security import verify_password, create_access_token
 from app.core.exceptions import ErrorCodes, raise_api_error
 from app.api.dependencies import get_current_user
 
-router = APIRouter(
-    dependencies=[Depends(get_current_user)]
-)
+router = APIRouter()
 
 @router.post("/login", response_model=Token)
 def login_for_access_token(
         form_data: OAuth2PasswordRequestForm = Depends(),
-        db: Session = Depends(get_db())
+        db: Session = Depends(get_db)
 ):
     user = db.query(Accounts).filter(Accounts.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):

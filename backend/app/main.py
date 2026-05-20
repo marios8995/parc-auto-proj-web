@@ -1,21 +1,33 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import os
+
+from uvicorn import lifespan
+
 from app.models.models import Base
 from app.database import engine
 from app.api import (
     cars, drivers, driver_car_associations, owners,
     management_services, anvelope, asigurari, viniete,
-    auth, acounts
+    auth, acounts, notifications
 )
+from app.core.tasks import start_scheduler, scheduler
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_scheduler()
+    yield
+    scheduler.shutdown()
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Fleet Management System API",
     description="API pentru gestiunea parcului auto, șoferi, service și asigurări",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 origins = [
@@ -56,3 +68,4 @@ app.include_router(asigurari.router, prefix="/api/asigurari", tags=["Asigurare"]
 app.include_router(viniete.router, prefix="/api/viniete", tags=["Viniete"])
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(acounts.router, prefix="/api/accounts", tags=["Accounts"])
+app.include_router(notifications.router, prefix="/api/notifications", tags=["Notifications"])

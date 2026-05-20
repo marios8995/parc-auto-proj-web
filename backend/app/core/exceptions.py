@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 
 class ErrorCodes:
+    NOTIFICATION_NOT_FOUND = "NOTIFICATION_NOT_FOUND"
     TIRE_NOT_FOUND = "TIRE_NOT_FOUND"
     ASSOCIATION_NOT_FOUND = "ASSOCIATION_NOT_FOUND"
     CAR_NOT_FOUND = "CAR_NOT_FOUND"
@@ -23,6 +24,7 @@ class ErrorCodes:
     ACCOUNT_NOT_ADMIN = "ACCOUNT_NOT_ADMIN"
 
 ERROR_MESSAGES = {
+    ErrorCodes.NOTIFICATION_NOT_FOUND: "Notificarea căutată nu a fost găsită.",
     ErrorCodes.TIRE_NOT_FOUND: "Anvelopa căutată nu a fost găsită.",
     ErrorCodes.ASSOCIATION_NOT_FOUND: "Asocierea căutată nu a fost găsită.",
     ErrorCodes.CAR_NOT_FOUND: "Mașina căutată nu a fost găsită în baza de date.",
