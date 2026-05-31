@@ -1,14 +1,16 @@
 import os
 from dotenv import load_dotenv
-from app.database import Session
-from app.models.models import Accounts, UserRole
+from sqlalchemy.orm import Session
+from app.database import SessionLocal, engine
+from app.models.models import Base, Accounts, UserRole
 from app.core.security import get_password_hash
 
 load_dotenv()
-
+def init():
+    Base.metadata.create_all(bind=engine)
 
 def create_first_admin():
-    db = Session()
+    db = SessionLocal()
     try:
         user = db.query(Accounts).first()
         if user:
@@ -49,4 +51,5 @@ def create_first_admin():
 
 
 if __name__ == "__main__":
+    init()
     create_first_admin()
