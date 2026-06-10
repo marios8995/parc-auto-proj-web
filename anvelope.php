@@ -1,50 +1,3 @@
-<?php
-// Datele pentru tabelul de anvelope
-$anvelope = [
-    [
-        'masina' => 'Dacia Logan',
-        'nr' => 'B 100 ABC',
-        'sezon' => 'Iarnă',
-        'detalii' => 'Continental 185/65 R15',
-        'uzura_mm' => '6.5 mm',
-        'uzura_text' => 'Stare bună',
-        'uzura_style' => 'text-gray-500',
-        'locatie' => 'Pe mașină',
-        'statut' => 'OK',
-        'statut_bg' => 'bg-[#e6fceb]',
-        'statut_text' => 'text-[#10b981]',
-        'dot_color' => 'bg-[#10b981]'
-    ],
-    [
-        'masina' => 'Skoda Octavia',
-        'nr' => 'CJ 25 XZY',
-        'sezon' => 'Vară',
-        'detalii' => 'Michelin 205/55 R16',
-        'uzura_mm' => '3.0 mm',
-        'uzura_text' => 'Uzură medie',
-        'uzura_style' => 'text-[#d97706]', // Portocaliu
-        'locatie' => 'Pe mașină',
-        'statut' => 'De monitorizat',
-        'statut_bg' => 'bg-[#fef3c7]',
-        'statut_text' => 'text-[#d97706]',
-        'dot_color' => 'bg-[#f59e0b]'
-    ],
-    [
-        'masina' => 'Ford Focus',
-        'nr' => 'TM 99 WOW',
-        'sezon' => 'Iarnă',
-        'detalii' => 'Pirelli 235/65 R16C',
-        'uzura_mm' => '1.5 mm',
-        'uzura_text' => 'Critic',
-        'uzura_style' => 'text-[#ef4444]', // Roșu
-        'locatie' => 'Pe mașină',
-        'statut' => 'Schimb Urgent',
-        'statut_bg' => 'bg-[#fee2e2]',
-        'statut_text' => 'text-[#ef4444]',
-        'dot_color' => 'bg-[#ef4444]'
-    ]
-];
-?>
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -168,10 +121,8 @@ $anvelope = [
                     
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Selectează Mașina <span class="text-red-500">*</span></label>
-                        <select required class="w-full px-3 py-2.5 border-2 border-blue-500 rounded-lg text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-800 bg-white">
-                            <option>CJ 25 XZY</option>
-                            <option>B 100 ABC</option>
-                            <option>TM 99 WOW</option>
+                        <select id="selectMasinaAnvelope" required class="w-full px-3 py-2.5 border-2 border-blue-500 rounded-lg text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-800 bg-white">
+                            <option value="" disabled selected>-- Se încarcă mașinile... --</option>
                         </select>
                     </div>
 
@@ -226,55 +177,196 @@ $anvelope = [
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- CĂUTARE LIVE ---
+    
+            // --- 1. CĂUTARE LIVE REPARATĂ ---
             const searchInput = document.getElementById('searchInput');
-            const tableRows = document.querySelectorAll('#tableBody tr');
-
             searchInput.addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
+                const tableRows = document.querySelectorAll('#tableBody tr');
                 tableRows.forEach(row => {
                     const text = row.textContent.toLowerCase();
                     row.style.display = text.includes(term) ? '' : 'none';
                 });
             });
 
-            // --- DESCHIDERE/ÎNCHIDERE FORMULAR MODAL ---
+            // --- 2. MODAL ---
             const btnAdauga = document.getElementById('btnAdaugaAnvelope');
             const modal = document.getElementById('modalAnvelope');
             const btnInchideModal = document.getElementById('btnInchideModal');
             const btnAnuleaza = document.getElementById('btnAnuleaza');
             const formAdauga = document.getElementById('formAdaugaAnvelope');
 
-            btnAdauga.addEventListener('click', () => {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            });
-
-            btnInchideModal.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            });
-
-            btnAnuleaza.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            });
-
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
+            const toggleModal = (show) => {
+                if (show) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                } else {
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
                 }
+            };
+
+            btnAdauga.addEventListener('click', () => toggleModal(true));
+            btnInchideModal.addEventListener('click', () => toggleModal(false));
+            btnAnuleaza.addEventListener('click', () => toggleModal(false));
+            modal.addEventListener('click', (e) => { if (e.target === modal) toggleModal(false); });
+
+            // --- 3. CONFIGURARE API ---
+            const API_BASE_URL = 'http://localhost:8000/api';
+            const token = localStorage.getItem('fleet_token');
+            const ANVELOPE_ENDPOINT = '/anvelope/';
+            
+            if (!token) window.location.href = 'login.php';
+
+            let carsMap = {};
+
+            // --- 4. PRELUARE MAȘINI ---
+            async function incarcaMasini() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/cars/?limit=100`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const masini = await res.json();
+                        const select = document.getElementById('selectMasinaAnvelope');
+                        select.innerHTML = '<option value="" disabled selected>-- Alege Mașina --</option>';
+                        
+                        masini.forEach(m => {
+                            carsMap[m.id] = m;
+                            const opt = document.createElement('option');
+                            opt.value = m.id;
+                            opt.textContent = `${m.nr_inmatriculare} - ${m.marca} ${m.model}`;
+                            select.appendChild(opt);
+                        });
+                    }
+                } catch (e) { console.error("Eroare mașini:", e); }
+            }
+
+            // --- 5. PRELUARE ANVELOPE ---
+            async function incarcaAnvelope() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}${ANVELOPE_ENDPOINT}?limit=100`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (res.status === 401) {
+                        localStorage.removeItem('fleet_token');
+                        window.location.href = 'login.php';
+                        return;
+                    }
+
+                    if (res.ok) {
+                        const anvelope = await res.json();
+                        randeazaTabel(anvelope);
+                    }
+                } catch (e) {
+                    document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="text-center py-5 text-red-500 font-bold">Eroare conexiune API</td></tr>`;
+                }
+            }
+
+            function randeazaTabel(lista) {
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                if (lista.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-gray-500">Nu există seturi de anvelope înregistrate.</td></tr>`;
+                    return;
+                }
+
+                lista.forEach(a => {
+                    const masina = carsMap[a.car_id] || {nr_inmatriculare: 'Ștearsă', marca: 'N/A', model: ''};
+                    
+                    let uzuraText = (a.stare_uzura || 'Stare bună').toLowerCase();
+                    let statusBg = 'bg-[#e6fceb]', statusText = 'text-[#10b981]', dotColor = 'bg-[#10b981]', statusMsg = 'OK';
+                    let uzuraStyle = 'text-gray-500';
+
+                    if (uzuraText.includes('schimbat') || uzuraText.includes('critic') || uzuraText.includes('rau') || uzuraText.includes('uzat')) {
+                        statusBg = 'bg-[#fee2e2]'; statusText = 'text-[#ef4444]'; dotColor = 'bg-[#ef4444]'; statusMsg = 'Schimb Urgent';
+                        uzuraStyle = 'text-[#ef4444] font-bold';
+                    } else if (uzuraText.includes('medie') || uzuraText.includes('monitorizat')) {
+                        statusBg = 'bg-[#fef3c7]'; statusText = 'text-[#d97706]'; dotColor = 'bg-[#f59e0b]'; statusMsg = 'De monitorizat';
+                        uzuraStyle = 'text-[#d97706] font-bold';
+                    }
+                    let sezonAfisat = a.sezon.charAt(0).toUpperCase() + a.sezon.slice(1);
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50/50 transition-colors group';
+                    tr.innerHTML = `
+                        <td class="px-6 py-5">
+                            <div class="font-bold text-[14px] text-gray-900">${masina.marca} ${masina.model}</div>
+                            <div class="text-[13px] text-gray-500 mt-0.5">${masina.nr_inmatriculare}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] text-gray-800 font-medium">${sezonAfisat}</div>
+                            <div class="text-[13px] text-gray-400 mt-0.5">${a.marca || '-'} ${a.dimensiuni || ''}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] ${uzuraStyle}">${a.stare_uzura || 'Stare bună'}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] text-gray-600">${a.locatie || 'Pe mașină'}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-bold ${statusBg} ${statusText}">
+                                <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
+                                ${statusMsg}
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // --- 6. SALVARE ANVELOPE ---
+            formAdauga.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const inputs = formAdauga.querySelectorAll('input');
+                const selects = formAdauga.querySelectorAll('select');
+                
+                let sezonValue = "Vara";
+                if (selects[1].value.includes("Iarnă")) sezonValue = "Iarna";
+                if (selects[1].value.includes("All Season")) sezonValue = "All-Season";
+
+                const anvelopeNoi = {
+                    car_id: parseInt(selects[0].value),
+                    sezon: sezonValue,
+                    marca: inputs[0].value,
+                    dimensiuni: inputs[1].value,
+                    stare_uzura: "Stare bună (Nou)",
+                    locatie: selects[2].value
+                };
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}${ANVELOPE_ENDPOINT}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(anvelopeNoi)
+                    });
+
+                    if (res.ok) {
+                        toggleModal(false);
+                        formAdauga.reset();
+                        incarcaAnvelope();
+                    } else {
+                        const err = await res.json();
+                        console.error("Eroare API 422:", err);
+                        alert('Eroare la salvare! Apasă F12 pentru a verifica erorile 422 din consolă.');
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
             });
 
-            formAdauga.addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert('Setul de anvelope a fost adăugat cu succes!');
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                formAdauga.reset();
-            });
+            // --- 7. START ---
+            async function init() {
+                await incarcaMasini();
+                await incarcaAnvelope();
+            }
+            init();
         });
     </script>
 </body>

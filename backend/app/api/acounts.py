@@ -8,9 +8,7 @@ from app.core.security import get_password_hash
 from app.core.exceptions import ErrorCodes, raise_api_error
 from app.api.dependencies import get_current_user
 
-router = APIRouter(
-    dependencies=[Depends(get_current_user)]
-)
+router = APIRouter()
 
 @router.post("/register", response_model=AccountResponse, status_code=status.HTTP_201_CREATED)
 def register_user(user_in: AccountCreate, db: Session = Depends(get_db)):
@@ -35,13 +33,13 @@ def register_user(user_in: AccountCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
-@router.get("/", response_model=List[AccountResponse])
+@router.get("/", response_model=List[AccountResponse], dependencies=[Depends(get_current_user)])
 def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = db.query(Accounts).offset(skip).limit(limit).all()
     return users
 
 
-@router.patch("/{account_id}", response_model=AccountResponse)
+@router.patch("/{account_id}", response_model=AccountResponse, dependencies=[Depends(get_current_user)])
 def update_user(account_id: int, user_data: AccountUpdate, db: Session = Depends(get_db)):
     user = db.query(Accounts).filter(Accounts.id == account_id).first()
     if not user:

@@ -1,44 +1,3 @@
-<?php
-// Simulăm datele pentru tabelul de șoferi
-$soferi = [
-    [
-        'nume' => 'Popescu Ion',
-        'telefon' => '0722 111 222',
-        'email' => 'ion.popescu@automanager.ro',
-        'permis' => 'B00123456X',
-        'masina' => 'Dacia Logan',
-        'nr_auto' => 'B 100 ABC',
-        'statut' => 'Activ',
-        'statut_bg' => 'bg-[#e6fceb]',
-        'statut_text' => 'text-[#10b981]',
-        'dot_color' => 'bg-[#10b981]'
-    ],
-    [
-        'nume' => 'Ionescu Maria',
-        'telefon' => '0733 333 444',
-        'email' => 'maria.ionescu@automanager.ro',
-        'permis' => 'B00987654Y',
-        'masina' => 'Skoda Octavia',
-        'nr_auto' => 'CJ 25 XZY',
-        'statut' => 'În cursă',
-        'statut_bg' => 'bg-[#e0f2fe]',
-        'statut_text' => 'text-[#0284c7]',
-        'dot_color' => 'bg-[#0284c7]'
-    ],
-    [
-        'nume' => 'Morar Ioan',
-        'telefon' => '0744 555 666',
-        'email' => 'ioan.morar@automanager.ro',
-        'permis' => 'B00456123Z',
-        'masina' => 'Ford Focus',
-        'nr_auto' => 'TM 99 WOW',
-        'statut' => 'În concediu',
-        'statut_bg' => 'bg-[#fee2e2]',
-        'statut_text' => 'text-[#ef4444]',
-        'dot_color' => 'bg-[#ef4444]'
-    ]
-];
-?>
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -112,30 +71,6 @@ $soferi = [
                             </tr>
                         </thead>
                         <tbody id="tableBody" class="divide-y divide-gray-50">
-                            
-                            <?php foreach($soferi as $item): ?>
-                            <tr class="hover:bg-gray-50/50 transition-colors group">
-                                <td class="px-6 py-5">
-                                    <div class="font-bold text-[14px] text-gray-900"><?= $item['nume'] ?></div>
-                                    <div class="text-[12px] text-gray-400 mt-0.5">Permis: <?= $item['permis'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-[14px] text-gray-800 font-medium"><?= $item['telefon'] ?></div>
-                                    <div class="text-[13px] text-gray-400 mt-0.5"><?= $item['email'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-[14px] text-gray-800 font-semibold"><?= $item['masina'] ?></div>
-                                    <div class="text-[12px] text-gray-500 mt-0.5"><?= $item['nr_auto'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-bold <?= $item['statut_bg'] ?> <?= $item['statut_text'] ?>">
-                                        <span class="w-1.5 h-1.5 rounded-full <?= $item['dot_color'] ?>"></span>
-                                        <?= $item['statut'] ?>
-                                    </span>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-
                         </tbody>
                     </table>
                 </div>
@@ -184,12 +119,9 @@ $soferi = [
 
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Mașină Alocată</label>
-                        <select class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
+                        <select id="selectMasinaDisponibila" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                             <option value="">Fără mașină alocată</option>
-                            <option>Dacia Logan (B 100 ABC)</option>
-                            <option>Skoda Octavia (CJ 25 XZY)</option>
-                            <option>Ford Focus (TM 99 WOW)</option>
-                        </select>
+                            </select>
                     </div>
                 </div>
 
@@ -224,55 +156,189 @@ $soferi = [
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- CĂUTARE LIVE (Filtrare Tabel) ---
+    
+            // --- 1. CĂUTARE LIVE ---
             const searchInput = document.getElementById('searchInput');
-            const tableRows = document.querySelectorAll('#tableBody tr');
 
             searchInput.addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
+                const tableRows = document.querySelectorAll('#tableBody tr'); 
+                
                 tableRows.forEach(row => {
                     const text = row.textContent.toLowerCase();
                     row.style.display = text.includes(term) ? '' : 'none';
                 });
             });
 
-            // --- DESCHIDERE/ÎNCHIDERE MODAL ---
+            // --- 2. MODAL ---
             const btnAdauga = document.getElementById('btnAdaugaSofer');
             const modal = document.getElementById('modalSofer');
             const btnInchideModal = document.getElementById('btnInchideModal');
             const btnAnuleaza = document.getElementById('btnAnuleaza');
             const formAdauga = document.getElementById('formAdaugaSofer');
 
-            btnAdauga.addEventListener('click', () => {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            });
-
-            btnInchideModal.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            });
-
-            btnAnuleaza.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            });
-
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
+            const toggleModal = (show) => {
+                if (show) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                } else {
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
                 }
+            };
+
+            btnAdauga.addEventListener('click', () => toggleModal(true));
+            btnInchideModal.addEventListener('click', () => toggleModal(false));
+            btnAnuleaza.addEventListener('click', () => toggleModal(false));
+            modal.addEventListener('click', (e) => { if (e.target === modal) toggleModal(false); });
+
+            // --- 3. CONFIGURARE API ---
+            const API_BASE_URL = 'http://localhost:8000/api';
+            const token = localStorage.getItem('fleet_token');
+            
+            if (!token) {
+                window.location.href = 'login.php';
+            }
+
+            // --- 4. PRELUARE MAȘINI DISPONIBILE (PENTRU SELECT) ---
+            async function incarcaMasiniDisponibile() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/cars/?disponibil=true&limit=100`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const masini = await res.json();
+                        const select = document.getElementById('selectMasinaDisponibila');
+                        
+                        // Resetăm select-ul
+                        select.innerHTML = '<option value="">Fără mașină alocată</option>';
+                        
+                        // Adăugăm mașinile din API
+                        masini.forEach(m => {
+                            const option = document.createElement('option');
+                            option.value = m.id;
+                            option.textContent = `${m.marca} ${m.model} (${m.nr_inmatriculare})`;
+                            select.appendChild(option);
+                        });
+                    }
+                } catch (e) {
+                    console.error("Eroare la încărcarea mașinilor:", e);
+                }
+            }
+
+            // --- 5. PRELUARE ȘOFERI DIN API ---
+            async function incarcaSoferi() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/drivers/?skip=0&limit=50`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.status === 401) {
+                        localStorage.removeItem('fleet_token');
+                        window.location.href = 'login.php';
+                        return;
+                    }
+
+                    const soferi = await response.json();
+                    randeazaTabel(soferi);
+                } catch (error) {
+                    document.getElementById('tableBody').innerHTML = `<tr><td colspan="4" class="text-center py-5 text-red-500 font-bold">Eroare API</td></tr>`;
+                }
+            }
+
+            function randeazaTabel(listaSoferi) {
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = '';
+
+                if (listaSoferi.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-gray-500">Nu există șoferi.</td></tr>`;
+                    return;
+                }
+
+                listaSoferi.forEach(sofer => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50/50 transition-colors group';
+                    tr.innerHTML = `
+                        <td class="px-6 py-5">
+                            <div class="font-bold text-[14px] text-gray-900">${sofer.nume_complet}</div>
+                            <div class="text-[12px] text-gray-400 mt-0.5">Permis: ${sofer.numar_permis || 'N/A'}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] text-gray-800 font-medium">${sofer.telefon || 'Fără telefon'}</div>
+                            <div class="text-[13px] text-gray-400 mt-0.5">CNP: ${sofer.cnp || 'N/A'}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] text-gray-800 font-semibold">Vezi Detalii...</div>
+                            <div class="text-[12px] text-gray-500 mt-0.5">Click pentru istoric</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-bold bg-[#e6fceb] text-[#10b981]">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span> Activ
+                            </span>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+
+            // --- 6. ADĂUGARE ȘOFER NOU (ȘI ALOCARE MAȘINĂ) ---
+            formAdauga.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const inputs = formAdauga.querySelectorAll('input');
+                const selectMasina = document.getElementById('selectMasinaDisponibila');
+                
+                const cnpDummy = "1" + Math.floor(100000000000 + Math.random() * 900000000000).toString();
+
+                const soferNou = {
+                    nume_complet: `${inputs[0].value} ${inputs[1].value}`,
+                    telefon: inputs[2].value,
+                    numar_permis: inputs[4].value || "B" + Math.floor(Math.random() * 100000),
+                    cnp: cnpDummy
+                };
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}/drivers/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(soferNou)
+                    });
+
+                    if (res.ok) {
+                        const soferSalvat = await res.json();
+                        if (selectMasina.value !== "") {
+                            const idMasina = parseInt(selectMasina.value);
+                            const asociere = {
+                                driver_id: soferSalvat.id,
+                                car_id: idMasina
+                            };
+
+                            await fetch(`${API_BASE_URL}/associations/`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify(asociere)
+                            });
+                        }
+
+                        toggleModal(false);
+                        formAdauga.reset();
+                        incarcaSoferi();
+                        incarcaMasiniDisponibile();
+                    } else {
+                        alert('Eroare la adăugare! Vezi consola.');
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
             });
 
-            formAdauga.addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert('Șoferul a fost înregistrat cu succes în sistem!');
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                formAdauga.reset();
-            });
+            incarcaMasiniDisponibile();
+            incarcaSoferi();
         });
     </script>
 </body>

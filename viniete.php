@@ -1,23 +1,3 @@
-<?php
-// Datele pentru tabel
-$viniete = [
-    [
-        'masina' => 'Dacia Logan', 'nr' => 'B 100 ABC', 'tara' => 'România (RO)', 'tip' => 'Rovinietă',
-        'valabilitate' => '1 An', 'expira_la' => '15 Decembrie 2026', 'expira_style' => 'text-[#10b981] font-bold',
-        'statut' => 'Valabil', 'statut_bg' => 'bg-[#e6fceb]', 'statut_text' => 'text-[#10b981]', 'dot_color' => 'bg-[#10b981]'
-    ],
-    [
-        'masina' => 'Skoda Octavia', 'nr' => 'CJ 25 XZY', 'tara' => 'Ungaria (HU)', 'tip' => 'Matrica',
-        'valabilitate' => '1 Lună', 'expira_la' => '30 Mai 2026', 'expira_style' => 'text-[#d97706] font-bold',
-        'statut' => 'Expiră curând', 'statut_bg' => 'bg-[#fef3c7]', 'statut_text' => 'text-[#d97706]', 'dot_color' => 'bg-[#f59e0b]'
-    ],
-    [
-        'masina' => 'Ford Focus', 'nr' => 'TM 99 WOW', 'tara' => 'Bulgaria (BG)', 'tip' => 'Vinetka',
-        'valabilitate' => '1 Săptămână', 'expira_la' => '25 Mai 2026', 'expira_style' => 'text-[#ef4444] font-bold',
-        'statut' => 'Expirat', 'statut_bg' => 'bg-[#fee2e2]', 'statut_text' => 'text-[#ef4444]', 'dot_color' => 'bg-[#ef4444]'
-    ]
-];
-?>
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -129,8 +109,8 @@ $viniete = [
                 <div class="grid grid-cols-2 gap-x-6 gap-y-6 mb-2">
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Selectează Mașina <span class="text-red-500">*</span></label>
-                        <select required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
-                            <option>TM 99 WOW</option><option>B 100 ABC</option><option>CJ 25 XZY</option>
+                        <select id="selectMasinaVinieta" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
+                            <option value="" disabled selected>-- Se încarcă mașinile... --</option>
                         </select>
                     </div>
                     <div>
@@ -181,34 +161,198 @@ $viniete = [
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- 1. CĂUTARE LIVE REPARATĂ ---
             const searchInput = document.getElementById('searchInput');
-            const tableRows = document.querySelectorAll('#tableBody tr');
             searchInput.addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
+                const tableRows = document.querySelectorAll('#tableBody tr');
                 tableRows.forEach(row => {
                     const text = row.textContent.toLowerCase();
                     row.style.display = text.includes(term) ? '' : 'none';
                 });
             });
 
+            // --- 2. MODAL ---
             const btnAdauga = document.getElementById('btnAdaugaVinieta');
             const modal = document.getElementById('modalVinieta');
             const btnInchideModal = document.getElementById('btnInchideModal');
             const btnAnuleaza = document.getElementById('btnAnuleaza');
             const formAdauga = document.getElementById('formAdaugaVinieta');
 
-            btnAdauga.addEventListener('click', () => { modal.classList.remove('hidden'); modal.classList.add('flex'); });
-            btnInchideModal.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
-            btnAnuleaza.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
-            modal.addEventListener('click', (e) => { if (e.target === modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } });
+            const toggleModal = (show) => {
+                if (show) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                } else {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            };
 
-            formAdauga.addEventListener('submit', (e) => {
+            btnAdauga.addEventListener('click', () => toggleModal(true));
+            btnInchideModal.addEventListener('click', () => toggleModal(false));
+            btnAnuleaza.addEventListener('click', () => toggleModal(false));
+            modal.addEventListener('click', (e) => { if (e.target === modal) toggleModal(false); });
+
+            // --- 3. CONFIGURARE API ---
+            const API_BASE_URL = 'http://localhost:8000/api';
+            const token = localStorage.getItem('fleet_token');
+            const VINIETE_ENDPOINT = '/viniete/'; 
+            
+            if (!token) window.location.href = 'login.php';
+
+            let carsMap = {};
+
+            // --- 4. PRELUARE MAȘINI ---
+            async function incarcaMasini() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/cars/?limit=100`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const masini = await res.json();
+                        const select = document.getElementById('selectMasinaVinieta');
+                        select.innerHTML = '<option value="" disabled selected>-- Alege Mașina --</option>';
+                        
+                        masini.forEach(m => {
+                            carsMap[m.id] = m;
+                            const opt = document.createElement('option');
+                            opt.value = m.id;
+                            opt.textContent = `${m.nr_inmatriculare} - ${m.marca} ${m.model}`;
+                            select.appendChild(opt);
+                        });
+                    }
+                } catch (e) { console.error("Eroare mașini:", e); }
+            }
+
+            // --- 5. PRELUARE VINIETE ---
+            async function incarcaViniete() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}${VINIETE_ENDPOINT}?limit=100`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (res.status === 401) {
+                        localStorage.removeItem('fleet_token');
+                        window.location.href = 'login.php';
+                        return;
+                    }
+
+                    if (res.ok) {
+                        const viniete = await res.json();
+                        randeazaTabel(viniete);
+                    }
+                } catch (e) {
+                    document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="text-center py-5 text-red-500 font-bold">Eroare conexiune API</td></tr>`;
+                }
+            }
+
+            function randeazaTabel(lista) {
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                if (lista.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-gray-500">Nu există viniete active.</td></tr>`;
+                    return;
+                }
+
+                lista.forEach(v => {
+                    const masina = carsMap[v.car_id] || {nr_inmatriculare: 'Ștearsă', marca: 'N/A', model: ''};
+                    const azi = new Date();
+                    const exp = new Date(v.data_expirare);
+                    const diffDays = Math.ceil((exp - azi) / (1000 * 60 * 60 * 24));
+
+                    let statusBg = 'bg-[#e6fceb]', statusText = 'text-[#10b981]', dotColor = 'bg-[#10b981]', statusMsg = 'Valabil';
+                    let dataStyle = 'text-[#10b981] font-bold';
+
+                    if (diffDays < 0) {
+                        statusBg = 'bg-[#fee2e2]'; statusText = 'text-[#ef4444]'; dotColor = 'bg-[#ef4444]'; statusMsg = 'Expirat';
+                        dataStyle = 'text-[#ef4444] font-bold';
+                    } else if (diffDays <= 7) { // Setăm alarma la 7 zile
+                        statusBg = 'bg-[#fef3c7]'; statusText = 'text-[#d97706]'; dotColor = 'bg-[#f59e0b]'; statusMsg = 'Expiră curând';
+                        dataStyle = 'text-[#d97706] font-bold';
+                    }
+
+                    const dataExpStr = new Date(v.data_expirare).toLocaleDateString('ro-RO');
+                    const numeTara = v.tara === "RO" ? "România" : (v.tara === "HU" ? "Ungaria" : (v.tara === "BG" ? "Bulgaria" : v.tara));
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50/50 transition-colors group';
+                    tr.innerHTML = `
+                        <td class="px-6 py-5">
+                            <div class="font-bold text-[14px] text-gray-900">${masina.marca} ${masina.model}</div>
+                            <div class="text-[13px] text-gray-500 mt-0.5">${masina.nr_inmatriculare}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] text-gray-800 font-medium">${numeTara}</div>
+                            <div class="text-[13px] text-gray-400 mt-0.5">${v.cost ? v.cost + ' RON' : '-'}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] text-gray-600">${diffDays >= 0 ? diffDays + ' Zile Rămase' : 'Expirată de ' + Math.abs(diffDays) + ' zile'}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] ${dataStyle}">${dataExpStr}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-bold ${statusBg} ${statusText}">
+                                <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
+                                ${statusMsg}
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // --- 6. SALVARE VINIETĂ ---
+            formAdauga.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                alert('Vinieta a fost adăugată cu succes!');
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                formAdauga.reset();
+                
+                const inputs = formAdauga.querySelectorAll('input');
+                const selects = formAdauga.querySelectorAll('select');
+                let taraSelectata = selects[1].value;
+                let taraCode = "RO";
+                if (taraSelectata.includes("Ungaria")) taraCode = "HU";
+                if (taraSelectata.includes("Bulgaria")) taraCode = "BG";
+
+                const vinietaNoua = {
+                    car_id: parseInt(selects[0].value),
+                    tara: taraCode,
+                    data_inceput: new Date(inputs[1].value).toISOString(),
+                    data_expirare: new Date(inputs[2].value).toISOString(),
+                    cost: parseFloat(inputs[0].value) || 0.0
+                };
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}${VINIETE_ENDPOINT}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(vinietaNoua)
+                    });
+
+                    if (res.ok) {
+                        toggleModal(false);
+                        formAdauga.reset();
+                        incarcaViniete();
+                    } else {
+                        const err = await res.json();
+                        console.error("Eroare API 422:", err);
+                        alert('Eroare la salvare! (Vezi consola F12)');
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
             });
+
+            // --- 7. START ---
+            async function init() {
+                await incarcaMasini();
+                await incarcaViniete();
+            }
+            init();
         });
     </script>
 </body>
