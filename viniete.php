@@ -1,23 +1,3 @@
-<?php
-// Datele pentru tabel
-$viniete = [
-    [
-        'masina' => 'Dacia Logan', 'nr' => 'B 100 ABC', 'tara' => 'România (RO)', 'tip' => 'Rovinietă',
-        'valabilitate' => '1 An', 'expira_la' => '15 Decembrie 2026', 'expira_style' => 'text-[#10b981] font-bold',
-        'statut' => 'Valabil', 'statut_bg' => 'bg-[#e6fceb]', 'statut_text' => 'text-[#10b981]', 'dot_color' => 'bg-[#10b981]'
-    ],
-    [
-        'masina' => 'Skoda Octavia', 'nr' => 'CJ 25 XZY', 'tara' => 'Ungaria (HU)', 'tip' => 'Matrica',
-        'valabilitate' => '1 Lună', 'expira_la' => '30 Mai 2026', 'expira_style' => 'text-[#d97706] font-bold',
-        'statut' => 'Expiră curând', 'statut_bg' => 'bg-[#fef3c7]', 'statut_text' => 'text-[#d97706]', 'dot_color' => 'bg-[#f59e0b]'
-    ],
-    [
-        'masina' => 'Ford Focus', 'nr' => 'TM 99 WOW', 'tara' => 'Bulgaria (BG)', 'tip' => 'Vinetka',
-        'valabilitate' => '1 Săptămână', 'expira_la' => '25 Mai 2026', 'expira_style' => 'text-[#ef4444] font-bold',
-        'statut' => 'Expirat', 'statut_bg' => 'bg-[#fee2e2]', 'statut_text' => 'text-[#ef4444]', 'dot_color' => 'bg-[#ef4444]'
-    ]
-];
-?>
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -33,7 +13,7 @@ $viniete = [
     <aside class="w-64 bg-white border-r border-gray-100 flex flex-col h-full shrink-0 relative">
         <div class="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
         <div class="h-24 flex items-center justify-center border-b border-gray-50 px-6 mb-2">
-            <a href="index.php">
+            <a href="acasa.php">
                 <img src="logo.png" alt="AutoManager Deluxe" class="max-h-16 object-contain">
             </a>
         </div>
@@ -86,30 +66,7 @@ $viniete = [
                             </tr>
                         </thead>
                         <tbody id="tableBody" class="divide-y divide-gray-50">
-                            <?php foreach($viniete as $item): ?>
-                            <tr class="hover:bg-gray-50/50 transition-colors group">
-                                <td class="px-6 py-5">
-                                    <div class="font-bold text-[14px] text-gray-900"><?= $item['masina'] ?></div>
-                                    <div class="text-[13px] text-gray-500 mt-0.5"><?= $item['nr'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-[14px] text-gray-800 font-medium"><?= $item['tara'] ?></div>
-                                    <div class="text-[13px] text-gray-400 mt-0.5"><?= $item['tip'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-[14px] text-gray-600"><?= $item['valabilitate'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-[14px] <?= $item['expira_style'] ?>"><?= $item['expira_la'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-bold <?= $item['statut_bg'] ?> <?= $item['statut_text'] ?>">
-                                        <span class="w-1.5 h-1.5 rounded-full <?= $item['dot_color'] ?>"></span>
-                                        <?= $item['statut'] ?>
-                                    </span>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+                            <!-- Populat dinamic via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -129,44 +86,50 @@ $viniete = [
                 <div class="grid grid-cols-2 gap-x-6 gap-y-6 mb-2">
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Selectează Mașina <span class="text-red-500">*</span></label>
-                        <select required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
-                            <option>TM 99 WOW</option><option>B 100 ABC</option><option>CJ 25 XZY</option>
+                        <select id="selectMasinaVinieta" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
+                            <option value="" disabled selected>-- Se încarcă mașinile... --</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Țara / Tip Vinietă <span class="text-red-500">*</span></label>
-                        <select required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
+                        <select id="taraVinieta" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                             <option>România (Rovinietă)</option><option>Ungaria (Matrica)</option><option>Bulgaria (Vinetka)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Perioadă Valabilitate <span class="text-red-500">*</span></label>
-                        <select required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
+                        <select id="perioadaValabilitate" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                             <option>12 Luni (1 An)</option><option>1 Lună (30 Zile)</option><option>1 Săptămână (7 Zile)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Cost Vinietă</label>
                         <div class="flex">
-                            <input type="text" value="139" class="w-full px-3 py-2.5 border border-gray-200 rounded-l-lg border-r-0 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700">
-                            <span class="inline-flex items-center px-4 bg-[#f8fafc] border border-gray-200 rounded-r-lg text-[13px] font-bold text-gray-500">RON</span>
+                            <!-- Aici am pus placeholder în loc de value -->
+                            <input type="text" id="costVinieta" placeholder="ex: 139" class="w-full px-3 py-2.5 border border-gray-200 rounded-l-lg border-r-0 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 placeholder-gray-400">
+                            <!-- Aici am adăugat selectorul de monedă -->
+                            <select id="monedaVinieta" class="px-3 bg-[#f8fafc] border border-gray-200 rounded-r-lg text-[13px] font-bold text-[#1e3a8a] focus:outline-none cursor-pointer">
+                                <option>RON</option>
+                                <option>EUR</option>
+                                <option>HUF</option>
+                            </select>
                         </div>
                     </div>
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Data Începerii <span class="text-red-500">*</span></label>
-                        <input type="date" required value="2026-06-10" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
+                        <input type="date" id="dataInceputVinieta" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                     </div>
                     <div>
-                        <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Data Expirării</label>
-                        <input type="date" value="2027-06-09" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-500 bg-[#f8fafc]">
+                        <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Data Expirării <span class="text-red-500">*</span></label>
+                        <input type="date" id="dataExpirareVinieta" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                     </div>
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Număr Chitanță / SMS</label>
-                        <input type="text" placeholder="ex: 987654321" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 placeholder-gray-400">
+                        <input type="text" id="numarChitanta" placeholder="ex: 987654321" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 placeholder-gray-400">
                     </div>
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Notificare Expirare</label>
-                        <select class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
+                        <select id="notificareVinieta" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                             <option>Cu 5 zile înainte</option><option>Cu 1 zi înainte</option><option>Fără notificare</option>
                         </select>
                     </div>
@@ -181,34 +144,246 @@ $viniete = [
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- 1. CĂUTARE LIVE ---
             const searchInput = document.getElementById('searchInput');
-            const tableRows = document.querySelectorAll('#tableBody tr');
             searchInput.addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
+                const tableRows = document.querySelectorAll('#tableBody tr');
                 tableRows.forEach(row => {
                     const text = row.textContent.toLowerCase();
                     row.style.display = text.includes(term) ? '' : 'none';
                 });
             });
 
+            // --- 2. MODAL ---
             const btnAdauga = document.getElementById('btnAdaugaVinieta');
             const modal = document.getElementById('modalVinieta');
             const btnInchideModal = document.getElementById('btnInchideModal');
             const btnAnuleaza = document.getElementById('btnAnuleaza');
             const formAdauga = document.getElementById('formAdaugaVinieta');
 
-            btnAdauga.addEventListener('click', () => { modal.classList.remove('hidden'); modal.classList.add('flex'); });
-            btnInchideModal.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
-            btnAnuleaza.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
-            modal.addEventListener('click', (e) => { if (e.target === modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } });
+            const toggleModal = (show) => {
+                if (show) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                } else {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            };
 
-            formAdauga.addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert('Vinieta a fost adăugată cu succes!');
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                formAdauga.reset();
+            btnAdauga.addEventListener('click', () => toggleModal(true));
+            btnInchideModal.addEventListener('click', () => toggleModal(false));
+            btnAnuleaza.addEventListener('click', () => toggleModal(false));
+            modal.addEventListener('click', (e) => { if (e.target === modal) toggleModal(false); });
+
+            // --- 3. CONFIGURARE API ---
+            const API_BASE_URL = 'http://localhost:8000/api';
+            const token = localStorage.getItem('fleet_token');
+            const VINIETE_ENDPOINT = '/viniete/'; 
+            
+            if (!token) window.location.href = 'login.php';
+
+            let carsMap = {};
+
+            // --- 4. PRELUARE MAȘINI ---
+            async function incarcaMasini() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/cars/?limit=100`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const masini = await res.json();
+                        const select = document.getElementById('selectMasinaVinieta');
+                        select.innerHTML = '<option value="" disabled selected>-- Alege Mașina --</option>';
+                        
+                        masini.forEach(m => {
+                            carsMap[m.id] = m;
+                            const opt = document.createElement('option');
+                            opt.value = m.id;
+                            opt.textContent = `${m.nr_inmatriculare} - ${m.marca} ${m.model}`;
+                            select.appendChild(opt);
+                        });
+                    }
+                } catch (e) { console.error("Eroare mașini:", e); }
+            }
+
+            // --- 5. PRELUARE VINIETE ---
+            async function incarcaViniete() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}${VINIETE_ENDPOINT}?limit=100`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (res.status === 401) {
+                        localStorage.removeItem('fleet_token');
+                        window.location.href = 'login.php';
+                        return;
+                    }
+
+                    if (res.ok) {
+                        const viniete = await res.json();
+                        randeazaTabel(viniete);
+                    }
+                } catch (e) {
+                    document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="text-center py-5 text-red-500 font-bold">Eroare conexiune API</td></tr>`;
+                }
+            }
+
+            function randeazaTabel(lista) {
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                if (lista.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-gray-500">Nu există viniete active.</td></tr>`;
+                    return;
+                }
+
+                lista.forEach(v => {
+                    const masina = carsMap[v.car_id] || {nr_inmatriculare: 'Ștearsă', marca: 'N/A', model: ''};
+                    const azi = new Date();
+                    const exp = new Date(v.data_expirare);
+                    const diffDays = Math.ceil((exp - azi) / (1000 * 60 * 60 * 24));
+
+                    let statusBg = 'bg-[#e6fceb]', statusText = 'text-[#10b981]', dotColor = 'bg-[#10b981]', statusMsg = 'Valabil';
+                    let dataStyle = 'text-[#10b981] font-bold';
+
+                    if (diffDays < 0) {
+                        statusBg = 'bg-[#fee2e2]'; statusText = 'text-[#ef4444]'; dotColor = 'bg-[#ef4444]'; statusMsg = 'Expirat';
+                        dataStyle = 'text-[#ef4444] font-bold';
+                    } else if (diffDays <= 7) { 
+                        statusBg = 'bg-[#fef3c7]'; statusText = 'text-[#d97706]'; dotColor = 'bg-[#f59e0b]'; statusMsg = 'Expiră curând';
+                        dataStyle = 'text-[#d97706] font-bold';
+                    }
+
+                    const dataExpStr = new Date(v.data_expirare).toLocaleDateString('ro-RO');
+                    const numeTara = v.tara === "RO" ? "România" : (v.tara === "HU" ? "Ungaria" : (v.tara === "BG" ? "Bulgaria" : v.tara));
+                    const tipVinietaDisplay = v.perioada_valabilitate || '1 An'; 
+                    
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50/50 transition-colors group';
+                    tr.innerHTML = `
+                        <td class="px-6 py-5">
+                            <div class="font-bold text-[14px] text-gray-900">${masina.marca} ${masina.model}</div>
+                            <div class="text-[13px] text-gray-500 mt-0.5">${masina.nr_inmatriculare}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] text-gray-800 font-medium">${numeTara}</div>
+                            <div class="text-[13px] text-gray-400 mt-0.5">Tip: ${tipVinietaDisplay}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] text-gray-600">${diffDays >= 0 ? diffDays + ' Zile Rămase' : 'Expirată de ' + Math.abs(diffDays) + ' zile'}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] ${dataStyle}">${dataExpStr}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-bold ${statusBg} ${statusText}">
+                                <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
+                                ${statusMsg}
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // --- 6. ADĂUGARE VINIETĂ NOUĂ (CU PROTECȚIE STRICTĂ) ---
+            const inputDataInceput = document.getElementById('dataInceputVinieta');
+            const inputDataExpirare = document.getElementById('dataExpirareVinieta');
+
+            // 1. Ce se întâmplă când modifici Data de Început:
+            inputDataInceput.addEventListener('change', () => {
+                if (inputDataInceput.value) {
+                    let minDate = new Date(inputDataInceput.value);
+                    minDate.setDate(minDate.getDate() + 1); 
+                    inputDataExpirare.min = minDate.toISOString().split('T')[0];
+
+                    if (inputDataExpirare.value && inputDataExpirare.value <= inputDataInceput.value) {
+                        inputDataExpirare.value = ''; 
+                        alert('Data de expirare a fost ștearsă deoarece era înaintea datei de început!');
+                    }
+                }
             });
+
+            // 2. Ce se întâmplă când modifici Data de Expirare:
+            inputDataExpirare.addEventListener('change', () => {
+                if (inputDataExpirare.value) {
+                    let maxDate = new Date(inputDataExpirare.value);
+                    maxDate.setDate(maxDate.getDate() - 1); 
+                    inputDataInceput.max = maxDate.toISOString().split('T')[0];
+
+                    if (inputDataInceput.value && inputDataInceput.value >= inputDataExpirare.value) {
+                        inputDataInceput.value = ''; 
+                        alert('Data de început a fost ștearsă deoarece era după data de expirare!');
+                    }
+                }
+            });
+
+            formAdauga.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const dataInc = new Date(inputDataInceput.value);
+                const dataExp = new Date(inputDataExpirare.value);
+
+                if (dataInc >= dataExp) {
+                    alert('Eroare: Data expirării trebuie să fie strict după data de început!');
+                    return; 
+                }
+
+                const carIdVal = document.getElementById('selectMasinaVinieta').value;
+                if (!carIdVal) {
+                    alert('Eroare: Te rog selectează o mașină din listă!');
+                    return;
+                }
+
+                let taraSelectata = document.getElementById('taraVinieta').value;
+                let taraCode = "RO";
+                if (taraSelectata.includes("Ungaria")) taraCode = "HU";
+                if (taraSelectata.includes("Bulgaria")) taraCode = "BG";
+
+                const vinietaNoua = {
+                    car_id: parseInt(carIdVal),
+                    tara: taraCode,
+                    data_inceput: dataInc.toISOString(),
+                    data_expirare: dataExp.toISOString(),
+                    cost: parseFloat(document.getElementById('costVinieta').value) || 0.0
+                    // Selectorul de monedă e pregătit, se poate trimite pe viitor dacă ai endpoint pentru asta.
+                };
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}${VINIETE_ENDPOINT}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(vinietaNoua)
+                    });
+
+                    if (res.ok) {
+                        toggleModal(false);
+                        formAdauga.reset();
+                        inputDataExpirare.removeAttribute('min');
+                        inputDataInceput.removeAttribute('max');
+                        incarcaViniete();
+                        alert('Vinieta a fost salvată cu succes!');
+                    } else {
+                        const err = await res.json();
+                        console.error("Eroare API 422:", err);
+                        alert('Eroare la salvare! Format invalid (vezi consola cu F12).');
+                    }
+                } catch (error) {
+                    console.error("Eroare conexiune:", error);
+                }
+            });
+
+            // --- 7. START ---
+            async function init() {
+                await incarcaMasini();
+                await incarcaViniete();
+            }
+            init();
         });
     </script>
 </body>

@@ -1,29 +1,3 @@
-<?php
-// Datele pentru tabelul de service
-$interventii = [
-    [
-        'masina' => 'Dacia Logan', 'nr' => 'B 100 ABC',
-        'detalii_titlu' => 'Revizie Periodică (Filtre + Ulei)', 'detalii_data' => '12 Mai 2026',
-        'atelier' => 'AutoCenter București',
-        'cost_text' => '1.450 RON', 'cost_style' => 'font-bold text-gray-900',
-        'statut' => 'Finalizat', 'statut_bg' => 'bg-[#e6fceb]', 'statut_text' => 'text-[#10b981]', 'dot_color' => 'bg-[#10b981]'
-    ],
-    [
-        'masina' => 'Skoda Octavia', 'nr' => 'CJ 25 XZY',
-        'detalii_titlu' => 'Înlocuire Plăcuțe Frână', 'detalii_data' => '26 Mai 2026',
-        'atelier' => 'ProService Cluj',
-        'cost_text' => 'Estimativ: <span class="font-bold text-gray-900">850 RON</span>', 'cost_style' => 'text-gray-500',
-        'statut' => 'În lucru', 'statut_bg' => 'bg-[#e0f2fe]', 'statut_text' => 'text-[#2563eb]', 'dot_color' => 'bg-[#3b82f6]'
-    ],
-    [
-        'masina' => 'Ford Focus', 'nr' => 'TM 99 WOW',
-        'detalii_titlu' => 'Reparație Motor', 'detalii_data' => '02 Iun 2026',
-        'atelier' => 'Reprezentanța Ford',
-        'cost_text' => 'Încă în garanție', 'cost_style' => 'text-gray-400',
-        'statut' => 'Programat', 'statut_bg' => 'bg-[#fef9c3]', 'statut_text' => 'text-[#ca8a04]', 'dot_color' => 'bg-[#eab308]'
-    ]
-];
-?>
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -144,9 +118,8 @@ $interventii = [
                 <div class="grid grid-cols-2 gap-x-6 gap-y-5 mb-5">
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Selectează Mașina <span class="text-red-500">*</span></label>
-                        <select required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-500 bg-white">
-                            <option value="" disabled selected>ex: B 100 ABC</option>
-                            <option>Dacia Logan (B 100 ABC)</option><option>Skoda Octavia (CJ 25 XZY)</option><option>Ford Focus (TM 99 WOW)</option>
+                        <select id="selectMasinaService" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-500 bg-white">
+                            <option value="" disabled selected>-- Se încarcă mașinile... --</option>
                         </select>
                     </div>
                     <div>
@@ -199,60 +172,190 @@ $interventii = [
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // Logica pentru CĂUTARE
+            // --- 1. CĂUTARE LIVE ---
             const searchInput = document.getElementById('searchInput');
-            const tableRows = document.querySelectorAll('#tableBody tr');
-
             searchInput.addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
+                const tableRows = document.querySelectorAll('#tableBody tr');
                 tableRows.forEach(row => {
                     const text = row.textContent.toLowerCase();
                     row.style.display = text.includes(term) ? '' : 'none';
                 });
             });
 
-            // Logica pentru FEREASTRA MODALĂ (Formularul de adăugare)
+            // --- 2. MODAL ---
             const btnAdauga = document.getElementById('btnAdaugaInterventie');
             const modal = document.getElementById('modalService');
             const btnInchideModal = document.getElementById('btnInchideModal');
             const btnAnuleaza = document.getElementById('btnAnuleaza');
             const formAdauga = document.getElementById('formAdaugaService');
 
-            // Deschidere modal
-            btnAdauga.addEventListener('click', () => {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            });
-
-            // Închidere din X
-            btnInchideModal.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            });
-
-            // Închidere din butonul Anulează
-            btnAnuleaza.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            });
-
-            // Închidere dacă dai click pe fundalul întunecat
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
+            const toggleModal = (show) => {
+                if (show) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                } else {
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
                 }
+            };
+
+            btnAdauga.addEventListener('click', () => toggleModal(true));
+            btnInchideModal.addEventListener('click', () => toggleModal(false));
+            btnAnuleaza.addEventListener('click', () => toggleModal(false));
+            modal.addEventListener('click', (e) => { if (e.target === modal) toggleModal(false); });
+
+            // --- 3. CONFIGURARE API ---
+            const API_BASE_URL = 'http://localhost:8000/api';
+            const token = localStorage.getItem('fleet_token');
+            const SERVICE_ENDPOINT = '/services/'; 
+            
+            if (!token) window.location.href = 'login.php';
+
+            let carsMap = {};
+
+            // --- 4. PRELUARE MAȘINI ---
+            async function incarcaMasini() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/cars/?limit=100`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const masini = await res.json();
+                        const select = document.getElementById('selectMasinaService');
+                        select.innerHTML = '<option value="" disabled selected>-- Alege Mașina --</option>';
+                        
+                        masini.forEach(m => {
+                            carsMap[m.id] = m;
+                            const opt = document.createElement('option');
+                            opt.value = m.id;
+                            opt.textContent = `${m.nr_inmatriculare} - ${m.marca} ${m.model}`;
+                            select.appendChild(opt);
+                        });
+                    }
+                } catch (e) { console.error("Eroare mașini:", e); }
+            }
+
+            // --- 5. PRELUARE ISTORIC SERVICE ---
+            async function incarcaService() {
+                try {
+                    const res = await fetch(`${API_BASE_URL}${SERVICE_ENDPOINT}?limit=100`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (res.status === 401) {
+                        localStorage.removeItem('fleet_token');
+                        window.location.href = 'login.php';
+                        return;
+                    }
+
+                    if (res.ok) {
+                        const interventii = await res.json();
+                        randeazaTabel(interventii);
+                    }
+                } catch (e) {
+                    document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" class="text-center py-5 text-red-500 font-bold">Eroare conexiune API</td></tr>`;
+                }
+            }
+
+            function randeazaTabel(lista) {
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                if (lista.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-gray-500">Nu există intervenții în service.</td></tr>`;
+                    return;
+                }
+
+                lista.forEach(item => {
+                    const masina = carsMap[item.car_id] || {nr_inmatriculare: 'Ștearsă', marca: 'N/A', model: ''};
+                    const dataIntrare = item.data_intrare ? new Date(item.data_intrare).toLocaleDateString('ro-RO') : 'N/A';
+                    let statusBg = 'bg-[#e0f2fe]', statusText = 'text-[#2563eb]', dotColor = 'bg-[#3b82f6]', statusMsg = 'În lucru';
+                    if (item.data_iesire) {
+                        statusBg = 'bg-[#e6fceb]'; statusText = 'text-[#10b981]'; dotColor = 'bg-[#10b981]'; statusMsg = 'Finalizat';
+                    }
+                    let atelierText = item.descriere_lucrare ? item.descriere_lucrare.substring(0, 30) + '...' : '-';
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50/50 transition-colors group';
+                    tr.innerHTML = `
+                        <td class="px-6 py-5">
+                            <div class="font-bold text-[14px] text-gray-900">${masina.marca} ${masina.model}</div>
+                            <div class="text-[13px] text-gray-500 mt-0.5">${masina.nr_inmatriculare}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] text-gray-800 font-medium">${item.nume_serviciu}</div>
+                            <div class="text-[13px] text-gray-400 mt-0.5">${dataIntrare}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] text-gray-500" title="${item.descriere_lucrare || ''}">${atelierText}</div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="text-[14px] font-bold text-gray-900">
+                                ${item.cost_total ? item.cost_total + ' RON' : 'În evaluare'}
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[12px] font-bold ${statusBg} ${statusText}">
+                                <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
+                                ${statusMsg}
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // --- 6. SALVARE INTERVENȚIE ---
+            formAdauga.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const inputs = formAdauga.querySelectorAll('input, select, textarea');
+                let dataIesire = null;
+                if (inputs[5].value === "Finalizat") {
+                    dataIesire = new Date().toISOString(); 
+                }
+
+                const interventieNoua = {
+                    car_id: parseInt(inputs[0].value),
+                    nume_serviciu: inputs[2].value,
+                    descriere_lucrare: `Atelier: ${inputs[3].value || '-'} | Note: ${inputs[6].value || '-'}`,
+                    data_intrare: new Date(inputs[1].value).toISOString(),
+                    data_iesire: dataIesire,
+                    cost_total: parseFloat(inputs[4].value) || 0.0,
+                    kilometraj_la_serviciu: 0
+                };
+
+                try {
+                    const res = await fetch(`${API_BASE_URL}${SERVICE_ENDPOINT}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(interventieNoua)
+                    });
+
+                    if (res.ok) {
+                        toggleModal(false);
+                        formAdauga.reset();
+                        incarcaService();
+                    } else {
+                        const err = await res.json();
+                        console.error("Eroare API 422:", err);
+                        alert('Eroare la salvare! (Apasă F12 pentru detalii)');
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
             });
 
-            // Submit formular
-            formAdauga.addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert('Intervenția service a fost salvată cu succes!');
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                formAdauga.reset();
-            });
+            // --- 7. START ---
+            async function init() {
+                await incarcaMasini();
+                await incarcaService();
+            }
+            init();
         });
     </script>
 </body>

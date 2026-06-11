@@ -1,38 +1,3 @@
-<?php
-// Simulăm datele pentru tabel (baza de date)
-$masini = [
-    [
-        'nr' => 'B 100 ABC',
-        'marca' => 'Dacia Logan',
-        'motor' => 'Benzină, 1.0',
-        'sofer' => 'Popescu Ion',
-        'statut' => 'Disponibilă',
-        'statut_bg' => 'bg-[#e6fceb]',
-        'statut_text' => 'text-[#10b981]',
-        'dot_color' => 'bg-[#10b981]'
-    ],
-    [
-        'nr' => 'CJ 25 XZY',
-        'marca' => 'Skoda Octavia',
-        'motor' => 'Diesel, 2.0 TDI',
-        'sofer' => 'Ionescu Maria',
-        'statut' => 'În cursă',
-        'statut_bg' => 'bg-[#e0f2fe]',
-        'statut_text' => 'text-[#0284c7]',
-        'dot_color' => 'bg-[#0284c7]'
-    ],
-    [
-        'nr' => 'TM 99 WOW',
-        'marca' => 'Ford Focus',
-        'motor' => 'GPL',
-        'sofer' => 'Morar Ioan',
-        'statut' => 'În service',
-        'statut_bg' => 'bg-[#fee2e2]',
-        'statut_text' => 'text-[#ef4444]',
-        'dot_color' => 'bg-[#ef4444]'
-    ]
-];
-?>
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -106,28 +71,6 @@ $masini = [
                             </tr>
                         </thead>
                         <tbody id="tableBody" class="divide-y divide-gray-100">
-                            
-                            <?php foreach($masini as $masina): ?>
-                            <tr class="hover:bg-gray-50/50 transition-colors group">
-                                <td class="px-2 py-5">
-                                    <div class="font-bold text-[14px] text-gray-900"><?= $masina['nr'] ?></div>
-                                </td>
-                                <td class="px-2 py-5">
-                                    <div class="text-[14px] text-gray-800 font-medium"><?= $masina['marca'] ?></div>
-                                    <div class="text-[12px] text-gray-400 mt-0.5"><?= $masina['motor'] ?></div>
-                                </td>
-                                <td class="px-2 py-5">
-                                    <div class="text-[14px] text-gray-500"><?= $masina['sofer'] ?></div>
-                                </td>
-                                <td class="px-2 py-5">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[12px] font-bold <?= $masina['statut_bg'] ?> <?= $masina['statut_text'] ?>">
-                                        <span class="w-1.5 h-1.5 rounded-full <?= $masina['dot_color'] ?>"></span>
-                                        <?= $masina['statut'] ?>
-                                    </span>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-
                         </tbody>
                     </table>
                 </div>
@@ -168,9 +111,20 @@ $masini = [
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">An Fabricație</label>
                         <select class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                             <option>2024</option>
-                            <option>2023</option>
-                            <option>2022</option>
-                            <option>2021</option>
+<option>2023</option>
+<option>2022</option>
+<option>2021</option>
+<option>2020</option>
+<option>2019</option>
+<option>2018</option>
+<option>2017</option>
+<option>2016</option>
+<option>2015</option>
+<option>2014</option>
+<option>2013</option>
+<option>2012</option>
+<option>2011</option>
+<option>2010</option>
                         </select>
                     </div>
                     <div>
@@ -216,56 +170,188 @@ $masini = [
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- 1. FUNCȚIONALITATE CĂUTARE (Filtrare Tabel) ---
-            const searchInput = document.getElementById('searchInput');
+    
+        // --- 1. FUNCȚIONALITATE CĂUTARE (Filtrare Tabel) ---
+        const searchInput = document.getElementById('searchInput');
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
             const tableRows = document.querySelectorAll('#tableBody tr');
+            
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+        });
 
-            searchInput.addEventListener('input', (e) => {
-                const term = e.target.value.toLowerCase();
-                tableRows.forEach(row => {
-                    const nrInmatriculare = row.cells[0].textContent.toLowerCase();
-                    row.style.display = nrInmatriculare.includes(term) ? '' : 'none';
+        // --- 2. FUNCȚIONALITATE MODAL (Pop-up) ---
+        const btnAdauga = document.getElementById('btnAdaugaMasina');
+        const modal = document.getElementById('modalMasina');
+        const btnInchideModal = document.getElementById('btnInchideModal');
+        const btnAnuleaza = document.getElementById('btnAnuleaza');
+        const formAdauga = document.getElementById('formAdaugaMasina'); // Îl declarăm O SINGURĂ DATĂ aici
+
+        btnAdauga.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        });
+
+        btnInchideModal.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        });
+
+        btnAnuleaza.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        });
+
+        // --- 3. CONFIGURARE API ȘI AUTENTIFICARE ---
+        const API_BASE_URL = 'http://localhost:8000/api';
+        const token = localStorage.getItem('fleet_token');
+        
+        if (!token) {
+            window.location.href = 'login.php';
+        }
+
+        // --- 4. FETCH DATE REALE DIN API ---
+        async function incarcaMasini() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/cars/?skip=0&limit=50`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
-            });
 
-            // --- 2. FUNCȚIONALITATE MODAL (Pop-up) ---
-            const btnAdauga = document.getElementById('btnAdaugaMasina');
-            const modal = document.getElementById('modalMasina');
-            const btnInchideModal = document.getElementById('btnInchideModal');
-            const btnAnuleaza = document.getElementById('btnAnuleaza');
-            const formAdauga = document.getElementById('formAdaugaMasina');
-
-            btnAdauga.addEventListener('click', () => {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            });
-
-            btnInchideModal.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            });
-
-            btnAnuleaza.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            });
-
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
+                if (response.status === 401) {
+                    // Token expirat, îl delogăm
+                    localStorage.removeItem('fleet_token');
+                    window.location.href = 'login.php';
+                    return;
                 }
+
+                const dateReale = await response.json();
+                randeazaTabel(dateReale);
+
+            } catch (error) {
+                console.error("Eroare la aducerea datelor:", error);
+                document.getElementById('tableBody').innerHTML = `
+                    <tr><td colspan="4" class="text-center py-5 text-red-500 font-bold">Nu am putut contacta serverul (API-ul).</td></tr>
+                `;
+            }
+        }
+        
+        function randeazaTabel(listaMasini) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            if (listaMasini.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-gray-500">Nu există nicio mașină înregistrată.</td></tr>`;
+                return;
+            }
+
+            listaMasini.forEach(masina => {
+                let bgStatus = 'bg-[#e6fceb]';
+                let textStatus = 'text-[#10b981]';
+                let dotStatus = 'bg-[#10b981]';
+
+                if (masina.status === 'in_service') {
+                    bgStatus = 'bg-[#fee2e2]'; textStatus = 'text-[#ef4444]'; dotStatus = 'bg-[#ef4444]';
+                } else if (masina.status === 'inactiv') {
+                    bgStatus = 'bg-[#f1f5f9]'; textStatus = 'text-[#64748b]'; dotStatus = 'bg-[#64748b]';
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50/50 transition-colors group';
+                tr.innerHTML = `
+                    <td class="px-2 py-5">
+                        <div class="font-bold text-[14px] text-gray-900">${masina.nr_inmatriculare}</div>
+                    </td>
+                    <td class="px-2 py-5">
+                        <div class="text-[14px] text-gray-800 font-medium">${masina.marca} ${masina.model}</div>
+                        <div class="text-[12px] text-gray-400 mt-0.5">${masina.tip_combustibil || 'N/A'} - ${masina.an_fabricatie || 'N/A'}</div>
+                    </td>
+                    <td class="px-2 py-5">
+                        <div class="text-[14px] text-gray-500">N/A</div>
+                    </td>
+                    <td class="px-2 py-5">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[12px] font-bold ${bgStatus} ${textStatus}">
+                            <span class="w-1.5 h-1.5 rounded-full ${dotStatus}"></span>
+                            ${masina.status}
+                        </span>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // --- 5. FUNCTIONALITATE ADĂUGARE MAȘINĂ REALĂ ---
+        // Aici trimitem datele către backend
+        formAdauga.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Extragem datele din formular
+            const inputs = formAdauga.querySelectorAll('input, select');
+            
+            const masinaNoua = {
+                nr_inmatriculare: inputs[0].value,
+                marca: inputs[1].value,
+                model: inputs[2].value,
+                an_fabricatie: parseInt(inputs[3].value),
+                tip_combustibil: inputs[4].value,
+                status: inputs[5].value === "Disponibilă" ? "activ" : (inputs[5].value === "În service" ? "in_service" : "inactiv"),
+                serie_sasiu: "SN" + Math.floor(Math.random() * 1000000000000000).toString().padStart(15, '0'),
+
+                // VALORI DEFAULT
+                kilometraj: 0,
+                tip_caroserie: "Necunoscut",
+                numar_locuri: 5,
+                culoare: "Alb",
+                categorie: "Autoturism",
+                capacitate_cilindrica: 1.4,
+                putere: 100,
+                pret: 0,
+                disponibil: true
+            };
+
+            try {
+            const res = await fetch(`${API_BASE_URL}/cars/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(masinaNoua)
             });
 
-            formAdauga.addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert('Datele au fost înregistrate cu succes! (Urmează conexiunea cu baza de date)');
+            if (res.ok) {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
                 formAdauga.reset();
-            });
+                incarcaMasini();
+            } else if (res.status === 422) {
+                const errorData = await res.json();
+                console.error("❌ EROARE 422 - FastAPI plânge după aceste câmpuri:", JSON.stringify(errorData.detail, null, 2));
+                alert("A apărut eroarea 422! Apasă F12 și dă click pe 'Console' ca să vezi exact ce câmp lipsește.");
+            } else {
+                alert('Eroare necunoscută la adăugarea mașinii!');
+            }
+            } catch (error) {
+                console.error(error);
+            }
         });
+
+        // Când se deschide pagina, aducem direct mașinile
+        incarcaMasini();
+    });
     </script>
 </body>
 </html>
