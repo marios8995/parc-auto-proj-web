@@ -343,7 +343,7 @@
                         alert('Data de început a fost ștearsă deoarece era după data de expirare!');
                     }
                 }
-            });
+            }
 
             formAdauga.addEventListener('submit', async (e) => {
                 e.preventDefault();
