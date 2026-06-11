@@ -111,9 +111,20 @@
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">An Fabricație</label>
                         <select class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                             <option>2024</option>
-                            <option>2023</option>
-                            <option>2022</option>
-                            <option>2021</option>
+<option>2023</option>
+<option>2022</option>
+<option>2021</option>
+<option>2020</option>
+<option>2019</option>
+<option>2018</option>
+<option>2017</option>
+<option>2016</option>
+<option>2015</option>
+<option>2014</option>
+<option>2013</option>
+<option>2012</option>
+<option>2011</option>
+<option>2010</option>
                         </select>
                     </div>
                     <div>

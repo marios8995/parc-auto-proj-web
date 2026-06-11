@@ -70,34 +70,6 @@
                             </tr>
                         </thead>
                         <tbody id="tableBody" class="divide-y divide-gray-50">
-                            
-                            <?php foreach($asigurari as $item): ?>
-                            <tr class="hover:bg-gray-50/50 transition-colors group">
-                                <td class="px-6 py-5">
-                                    <div class="font-bold text-[14px] text-gray-900"><?= $item['masina'] ?></div>
-                                    <div class="text-[13px] text-gray-500 mt-0.5"><?= $item['nr'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-[14px] text-gray-800 font-medium"><?= $item['tip'] ?></div>
-                                    <div class="text-[13px] text-gray-400 mt-0.5"><?= $item['seria'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-[14px] <?= $item['data_style'] ?>"><?= $item['data_expirare'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-[14px] <?= $item['zile_style'] ?>">
-                                        <?= $item['zile_ramase'] ?>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-bold <?= $item['statut_bg'] ?> <?= $item['statut_text'] ?>">
-                                        <span class="w-1.5 h-1.5 rounded-full <?= $item['dot_color'] ?>"></span>
-                                        <?= $item['statut'] ?>
-                                    </span>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-
                         </tbody>
                     </table>
                 </div>
@@ -128,7 +100,7 @@
 
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Tip Asigurare <span class="text-red-500">*</span></label>
-                        <select required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
+                        <select id="tipAsigurare" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                             <option>RCA</option>
                             <option>CASCO</option>
                             <option>Asistență Rutieră</option>
@@ -137,7 +109,7 @@
 
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Companie Asiguratoare</label>
-                        <input type="text" value="Groupama" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700">
+                        <input type="text" id="companieAsiguratoare" placeholder="ex: Groupama" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 placeholder-gray-400">
                     </div>
 
                     <div>
@@ -147,21 +119,24 @@
 
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Data Începerii <span class="text-red-500">*</span></label>
-                        <input type="date" required value="2023-08-20" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
+                        <input type="date" id="dataInceput" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                     </div>
 
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Data Expirării <span class="text-red-500">*</span></label>
-                        <input type="date" required value="2024-08-19" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
+                        <input type="date" id="dataExpirare" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                     </div>
 
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Cost Poliță</label>
                         <div class="flex">
-                            <input type="text" value="1250" class="w-full px-3 py-2.5 border border-gray-200 rounded-l-lg border-r-0 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700">
-                            <span class="inline-flex items-center px-4 bg-[#f8fafc] border border-gray-200 rounded-r-lg text-[13px] font-bold text-[#1e3a8a]">
-                                RON
-                            </span>
+                            <input type="text" id="costPolita" placeholder="ex: 1250" class="w-full px-3 py-2.5 border border-gray-200 rounded-l-lg border-r-0 text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 placeholder-gray-400">
+                            <!-- Dropdown adăugat pentru selectarea monedei -->
+                            <select id="monedaPolita" class="px-3 bg-[#f8fafc] border border-gray-200 rounded-r-lg text-[13px] font-bold text-[#1e3a8a] focus:outline-none cursor-pointer">
+                                <option>RON</option>
+                                <option>EUR</option>
+                                <option>HUF</option>
+                            </select>
                         </div>
                     </div>
 
@@ -195,7 +170,7 @@
             const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
-                const tableRows = document.querySelectorAll('#tableBody tr'); 
+                const tableRows = document.querySelectorAll('#tableBody tr');
                 tableRows.forEach(row => {
                     const text = row.textContent.toLowerCase();
                     row.style.display = text.includes(term) ? '' : 'none';
@@ -227,13 +202,13 @@
             // --- 3. CONFIGURARE API ---
             const API_BASE_URL = 'http://localhost:8000/api';
             const token = localStorage.getItem('fleet_token');
-            const ASIGURARI_ENDPOINT = '/asigurari/'; 
+            const ASIGURARI_ENDPOINT = '/asigurari/';
             
             if (!token) window.location.href = 'login.php';
 
             let carsMap = {};
 
-            // --- 4. PRELUARE MAȘINI (Pentru Select și pentru Numele din Tabel) ---
+            // --- 4. PRELUARE MAȘINI ---
             async function incarcaMasini() {
                 try {
                     const res = await fetch(`${API_BASE_URL}/cars/?limit=100`, {
@@ -245,7 +220,7 @@
                         select.innerHTML = '<option value="">-- Alege Mașina --</option>';
                         
                         masini.forEach(m => {
-                            carsMap[m.id] = m; // Salvăm mașina în memorie ca să o folosim la tabel
+                            carsMap[m.id] = m; 
                             const opt = document.createElement('option');
                             opt.value = m.id;
                             opt.textContent = `${m.nr_inmatriculare} - ${m.marca} ${m.model}`;
@@ -255,7 +230,7 @@
                 } catch (e) { console.error("Eroare mașini:", e); }
             }
 
-            // --- 5. PRELUARE ASIGURĂRI DIN API ---
+            // --- 5. PRELUARE ASIGURĂRI ---
             async function incarcaAsigurari() {
                 try {
                     const res = await fetch(`${API_BASE_URL}${ASIGURARI_ENDPOINT}?limit=100`, {
@@ -269,7 +244,7 @@
                     }
 
                     if (res.status === 404) {
-                        alert("Eroare 404: Endpointul pentru asigurări e greșit. Verifică în main.py cum ai denumit ruta!");
+                        alert("Eroare 404: Endpointul pentru asigurări e greșit.");
                         return;
                     }
 
@@ -338,23 +313,66 @@
                 });
             }
 
-            // --- 6. ADĂUGARE ASIGURARE NOUĂ ---
+           // --- 6. ADĂUGARE ASIGURARE NOUĂ (CU PROTECȚIE STRICTĂ) ---
+            const inputDataInceput = document.getElementById('dataInceput');
+            const inputDataExpirare = document.getElementById('dataExpirare');
+
+            // 1. Ce se întâmplă când modifici Data de Început:
+            inputDataInceput.addEventListener('change', () => {
+                if (inputDataInceput.value) {
+                    let minDate = new Date(inputDataInceput.value);
+                    minDate.setDate(minDate.getDate() + 1); 
+                    inputDataExpirare.min = minDate.toISOString().split('T')[0];
+
+                    if (inputDataExpirare.value && inputDataExpirare.value <= inputDataInceput.value) {
+                        inputDataExpirare.value = ''; 
+                        alert('Data de expirare a fost ștearsă deoarece era înaintea datei de început!');
+                    }
+                }
+            });
+
+            // 2. Ce se întâmplă când modifici Data de Expirare:
+            inputDataExpirare.addEventListener('change', () => {
+                if (inputDataExpirare.value) {
+                    let maxDate = new Date(inputDataExpirare.value);
+                    maxDate.setDate(maxDate.getDate() - 1); 
+                    inputDataInceput.max = maxDate.toISOString().split('T')[0];
+
+                    if (inputDataInceput.value && inputDataInceput.value >= inputDataExpirare.value) {
+                        inputDataInceput.value = ''; 
+                        alert('Data de început a fost ștearsă deoarece era după data de expirare!');
+                    }
+                }
+            }
+
             formAdauga.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
-                const inputs = formAdauga.querySelectorAll('input');
-                const selects = formAdauga.querySelectorAll('select');
+                const dataInc = new Date(inputDataInceput.value);
+                const dataExp = new Date(inputDataExpirare.value);
 
-                let tipSelectat = selects[1].value;
+                if (dataInc >= dataExp) {
+                    alert('Eroare: Data expirării trebuie să fie strict după data de început!');
+                    return; 
+                }
+
+                const carIdVal = document.getElementById('selectMasina').value;
+                if (!carIdVal) {
+                    alert('Eroare: Te rog selectează o mașină din listă!');
+                    return;
+                }
+
+                let tipSelectat = document.getElementById('tipAsigurare').value;
                 if (tipSelectat.includes("Asistență")) tipSelectat = "ASISTENTA_RUTIERA"; 
 
                 const asigurareNoua = {
-                    car_id: parseInt(selects[0].value),
+                    car_id: parseInt(carIdVal),
                     tip: tipSelectat, 
-                    companie: inputs[0].value,
-                    data_inceput: new Date(inputs[2].value).toISOString(),
-                    data_expirare: new Date(inputs[3].value).toISOString(),
-                    cost: parseFloat(inputs[4].value) || 0
+                    companie: document.getElementById('companieAsiguratoare').value,
+                    data_inceput: dataInc.toISOString(),
+                    data_expirare: dataExp.toISOString(),
+                    cost: parseFloat(document.getElementById('costPolita').value) || 0
+                    // Moneda din select poate fi stocată local sau trimisă dacă API-ul o suportă în viitor
                 };
 
                 try {
@@ -362,7 +380,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
+                            'Authorization': `Bearer ${token}` 
                         },
                         body: JSON.stringify(asigurareNoua)
                     });
@@ -370,14 +388,17 @@
                     if (res.ok) {
                         toggleModal(false);
                         formAdauga.reset();
-                        incarcaAsigurari();
+                        inputDataExpirare.removeAttribute('min');
+                        inputDataInceput.removeAttribute('max');
+                        incarcaAsigurari(); 
+                        alert('Asigurarea a fost adăugată cu succes!');
                     } else {
                         const err = await res.json();
-                        console.error("Eroare API 422:", err);
-                        alert('Eroare la adăugare! (Verifică consola cu F12 pentru a vedea detaliile 422).');
+                        console.error("Eroare trimisă de backend (422):", err);
+                        alert('Eroare la adăugare! Backend-ul a respins datele (vezi F12 -> Console).');
                     }
                 } catch (error) {
-                    console.error(error);
+                    console.error("Eroare de conexiune:", error);
                 }
             });
 

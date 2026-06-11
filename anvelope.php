@@ -16,7 +16,7 @@
         <div class="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
 
         <div class="h-24 flex items-center justify-center border-b border-gray-50 px-6 mb-2">
-            <a href="index.php">
+            <a href="acasa.php">
                 <img src="logo.png" alt="AutoManager Deluxe" class="max-h-16 object-contain">
             </a>
         </div>
@@ -71,34 +71,7 @@
                             </tr>
                         </thead>
                         <tbody id="tableBody" class="divide-y divide-gray-50">
-                            
-                            <?php foreach($anvelope as $item): ?>
-                            <tr class="hover:bg-gray-50/50 transition-colors group">
-                                <td class="px-6 py-5">
-                                    <div class="font-bold text-[14px] text-gray-900"><?= $item['masina'] ?></div>
-                                    <div class="text-[13px] text-gray-500 mt-0.5"><?= $item['nr'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-[14px] text-gray-800 font-medium"><?= $item['sezon'] ?></div>
-                                    <div class="text-[13px] text-gray-400 mt-0.5"><?= $item['detalii'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-[14px] text-gray-800"><?= $item['uzura_mm'] ?></div>
-                                    <div class="text-[13px] <?= $item['uzura_style'] ?> mt-0.5"><?= $item['uzura_text'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <div class="text-[14px] text-gray-600"><?= $item['locatie'] ?></div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-bold <?= $item['statut_bg'] ?> <?= $item['statut_text'] ?>">
-                                        <span class="w-1.5 h-1.5 rounded-full <?= $item['dot_color'] ?>"></span>
-                                        <?= $item['statut'] ?>
-                                    </span>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -128,7 +101,7 @@
 
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Sezon <span class="text-red-500">*</span></label>
-                        <select required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
+                        <select id="sezonAnvelope" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white">
                             <option>Anvelope de Iarnă</option>
                             <option>Anvelope de Vară</option>
                             <option>All Season</option>
@@ -137,19 +110,20 @@
 
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Marcă și Model <span class="text-red-500">*</span></label>
-                        <input type="text" required value="Michelin Alpin 6" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-800">
+                        <input type="text" id="marcaAnvelope" placeholder="ex: Michelin Alpin 6" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-800">
                     </div>
 
                     <div>
                         <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Dimensiuni <span class="text-red-500">*</span></label>
-                        <input type="text" required value="205/55 R16" class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-800">
+                        <input type="text" id="dimensiuniAnvelope" placeholder="ex: 205/55 R16" required class="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-800">
+                        <p class="text-[11px] text-gray-400 mt-1">Format: 205/55/R16 sau 205/55 R16</p>
                     </div>
                 </div>
 
                 <div class="mb-2">
                     <label class="block text-[13px] font-medium text-gray-600 mb-1.5">Locație Curentă <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <select required class="w-full pl-8 pr-4 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white appearance-none">
+                        <select id="locatieAnvelope" required class="w-full pl-8 pr-4 py-2.5 border border-gray-200 rounded-lg text-[14px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-700 bg-white appearance-none">
                             <option>În Depozit</option>
                             <option>Pe mașină</option>
                             <option>La service</option>
@@ -178,7 +152,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
     
-            // --- 1. CĂUTARE LIVE REPARATĂ ---
+            // --- 1. CĂUTARE LIVE ---
             const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
@@ -287,6 +261,7 @@
                         statusBg = 'bg-[#fef3c7]'; statusText = 'text-[#d97706]'; dotColor = 'bg-[#f59e0b]'; statusMsg = 'De monitorizat';
                         uzuraStyle = 'text-[#d97706] font-bold';
                     }
+                    
                     let sezonAfisat = a.sezon.charAt(0).toUpperCase() + a.sezon.slice(1);
 
                     const tr = document.createElement('tr');
@@ -317,24 +292,38 @@
                 });
             }
 
-            // --- 6. SALVARE ANVELOPE ---
+            // --- 6. SALVARE ANVELOPE (CU VALIDARE STRICTĂ REGEX) ---
             formAdauga.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
-                const inputs = formAdauga.querySelectorAll('input');
-                const selects = formAdauga.querySelectorAll('select');
+                // VALIDARE MAȘINĂ
+                const carIdVal = document.getElementById('selectMasinaAnvelope').value;
+                if (!carIdVal) {
+                    alert('Eroare: Te rog selectează o mașină din listă!');
+                    return;
+                }
+
+                // VALIDARE DIMENSIUNI CU REGEX
+                const dimensiuniVal = document.getElementById('dimensiuniAnvelope').value.trim();
+                const regexDimensiuni = /^\d{3}\/\d{2}[ \/]?[a-zA-Z]{1,2}\d{2}$/;
                 
+                if (!regexDimensiuni.test(dimensiuniVal)) {
+                    alert('Eroare: Formatul dimensiunii este incorect!\n\nTe rog folosește formatul standard (ex: 205/55 R16, 225/45/R17 sau 195/65/r15).');
+                    return; // Blocăm trimiterea formularului
+                }
+
+                let sezonSelectat = document.getElementById('sezonAnvelope').value;
                 let sezonValue = "Vara";
-                if (selects[1].value.includes("Iarnă")) sezonValue = "Iarna";
-                if (selects[1].value.includes("All Season")) sezonValue = "All-Season";
+                if (sezonSelectat.includes("Iarnă")) sezonValue = "Iarna";
+                if (sezonSelectat.includes("All Season")) sezonValue = "All-Season";
 
                 const anvelopeNoi = {
-                    car_id: parseInt(selects[0].value),
+                    car_id: parseInt(carIdVal),
                     sezon: sezonValue,
-                    marca: inputs[0].value,
-                    dimensiuni: inputs[1].value,
+                    marca: document.getElementById('marcaAnvelope').value,
+                    dimensiuni: dimensiuniVal, // Trimitem dimensiunea validată
                     stare_uzura: "Stare bună (Nou)",
-                    locatie: selects[2].value
+                    locatie: document.getElementById('locatieAnvelope').value
                 };
 
                 try {
@@ -351,13 +340,14 @@
                         toggleModal(false);
                         formAdauga.reset();
                         incarcaAnvelope();
+                        alert('Setul de anvelope a fost adăugat cu succes!');
                     } else {
                         const err = await res.json();
                         console.error("Eroare API 422:", err);
-                        alert('Eroare la salvare! Apasă F12 pentru a verifica erorile 422 din consolă.');
+                        alert('Eroare la salvare! Datele sunt invalide pentru backend (vezi consola F12).');
                     }
                 } catch (error) {
-                    console.error(error);
+                    console.error("Eroare conexiune:", error);
                 }
             });
 
