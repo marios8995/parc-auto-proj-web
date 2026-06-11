@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic[email]
+pymysql
+passlib[bcrypt]==1.7.4
+PyJWT==2.12.1
+python-jose[cryptography]
+python-multipart
+apscheduler
+bcrypt<4.0.0
