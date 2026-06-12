@@ -72,7 +72,7 @@
                 email: document.getElementById('regEmail').value,
                 password: document.getElementById('regPassword').value,
                 is_active: true,
-                role: "USER"
+                role: "User"
             };
 
             try {
